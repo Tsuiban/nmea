@@ -337,7 +337,7 @@ impl NmeaBaseSentence {
     }
 
     pub fn get_date(&self, index: usize) -> Option<NaiveDate> {
-        if let Some(t) = self.get::<String>(index) {
+        if let Some(t) = self.get::<String>(index)  {
             let days_s = &t[0..2];
             let month_s = &t[2..4];
             let year_s = &t[4..];
