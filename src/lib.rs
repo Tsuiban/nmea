@@ -1,6 +1,10 @@
+extern crate core;
+
+use std::io::{BufRead, BufReader};
 use std::str::FromStr;
 use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime, Utc};
 use num_traits::Num;
+use crate::NmeaSentence::{AAM, ABK, ABM, ACA, ACK, ACS, ADS, AIR, AKD, ALA, ALM, ALR, APA, APB, ASD, BBM, BEC, BOD, BWC, BWR, BWW, CEK, COP, CUR, DBK, DBS, DBT, DCN, DCR, DDC, DOR, DPT, DSC, DSE, DSI, DSR, DTM, ETL, EVE, FIR, FSI, GBS, GGA, GLC, GLL, GMP, GNS, GRS, GSA, GST, GSV, GTD, GXA, HDG, HDM, HDT, HFB, HMR, HMS, HSC, HTC, HTD, ITS, LCD, LR1, LR2, LR3, LRF, MDA, MLA, MSK, MSS, MTW, MWD, MWV, OLN, OSD, R00, RLM, RMA, RMB, RMC, ROT, RPM, RSA, RSD, RTE, SF1, SSD, STN, TDS, TFI, TLB, TLL, TPC, TPR, TPT, TRF, TTM, TUT, TXT, VBW, VDM, VDO, VDR, VHW, VLW, VPW, VSD, VTG, VWR, WCV, WDC, WDR, WNC, WPL, XDR, XTE, XTR, ZDA, ZDL, ZFO, ZTG};
 
 macro_rules! make_data {
     ($i:ident) => {
@@ -117,6 +121,12 @@ pub struct NmeaBaseSentence {
     _fields: Vec<String>,
     _checksum: u8,
     _original: String,
+}
+
+#[derive(Debug)]
+pub struct ErrorData {
+    error : String,
+    message : String,
 }
 
 make_data!(AamData);
@@ -347,6 +357,18 @@ impl NmeaBaseSentence {
             NaiveDate::from_ymd_opt(years, months, days)
         } else {
             None
+        }
+    }
+}
+
+impl Clone for NmeaBaseSentence {
+    fn clone(&self) -> Self {
+        Self {
+            _sender: self._sender.clone(),
+            _message_type: self._message_type.clone(),
+            _fields: self._fields.clone(),
+            _checksum: self._checksum,
+            _original: self._original.clone(),
         }
     }
 }
@@ -1297,137 +1319,273 @@ impl ZtgData {
     make_string_field!(destination_waypoint_id, 2);
 }
 
-#[cfg(test)]
-mod tests {
-    use std::{assert_eq, fs};
-    use std::io::{BufRead, BufReader};
-    use super::*;
+pub enum NmeaSentence {
+    AAM(AamData),
+    ABK(AbkData),
+    ACA(AcaData),
+    ACK(AckData),
+    ACS(AcsData),
+    ADS(AdsData),
+    AIR(AirData),
+    AKD(AkdData),
+    ALA(AlaData),
+    ALM(AlmData),
+    ALR(AlrData),
+    APA(ApaData),
+    APB(ApbData),
+    ASD(AsdData),
+    BEC(BecData),
+    BOD(BodData),
+    BWC(BwcData),
+    BWR(BwrData),
+    BWW(BwwData),
+    CEK(CekData),
+    COP(CopData),
+    CUR(CurData),
+    DBK(DbkData),
+    DBS(DbsData),
+    DBT(DbtData),
+    DCN(DcnData),
+    DCR(DcrData),
+    DDC(DdcData),
+    DOR(DorData),
+    DPT(DptData),
+    DSC(DscData),
+    DSE(DseData),
+    DSI(DsiData),
+    DSR(DsrData),
+    DTM(DtmData),
+    ETL(EtlData),
+    EVE(EveData),
+    FIR(FirData),
+    FSI(FsiData),
+    GBS(GbsData),
+    GGA(GgaData),
+    GLC(GlcData),
+    GLL(GllData),
+    GMP(GmpData),
+    GNS(GnsData),
+    GRS(GrsData),
+    GSA(GsaData),
+    GST(GstData),
+    GSV(GsvData),
+    GTD(GtdData),
+    GXA(GxaData),
+    HDG(HdgData),
+    HDM(HdmData),
+    HDT(HdtData),
+    HFB(HfbData),
+    HMR(HmrData),
+    HMS(HmsData),
+    HSC(HscData),
+    HTC(HtcData),
+    HTD(HtdData),
+    ITS(ItsData),
+    LCD(LcdData),
+    LRF(LrfData),
+    LR1(Lr1Data),
+    LR2(Lr2Data),
+    LR3(Lr3Data),
+    MDA(MdaData),
+    MLA(MlaData),
+    MSK(MskData),
+    MSS(MssData),
+    MTW(MtwData),
+    MWD(MwdData),
+    MWV(MwvData),
+    OLN(OlnData),
+    OSD(OsdData),
+    R00(R00Data),
+    RLM(RlmData),
+    RMA(RmaData),
+    RMB(RmbData),
+    RMC(RmcData),
+    ROT(RotData),
+    RPM(RpmData),
+    RSA(RsaData),
+    RSD(RsdData),
+    RTE(RteData),
+    SF1(Sf1Data),
+    SSD(SsdData),
+    STN(StnData),
+    TDS(TdsData),
+    TFI(TfiData),
+    TLB(TlbData),
+    TLL(TllData),
+    TPC(TpcData),
+    TPR(TprData),
+    TPT(TptData),
+    TRF(TrfData),
+    TTM(TtmData),
+    TUT(TutData),
+    TXT(TxtData),
+    VBW(VbwData),
+    VDR(VdrData),
+    VHW(VhwData),
+    VLW(VlwData),
+    VPW(VpwData),
+    VSD(VsdData),
+    VTG(VtgData),
+    VWR(VwrData),
+    WCV(WcvData),
+    WDC(WdcData),
+    WDR(WdrData),
+    WNC(WncData),
+    WPL(WplData),
+    XDR(XdrData),
+    XTE(XteData),
+    XTR(XtrData),
+    ZDA(ZdaData),
+    ZDL(ZdlData),
+    ZFO(ZfoData),
+    ZTG(ZtgData),
+    ABM(AbmData),
+    BBM(BbmData),
+    VDM(VdmData),
+    VDO(VdoData),
+    ERROR(ErrorData),
+}
 
-    fn create_test_val_1() -> NmeaBaseSentence {
-        let base_sentence = "$GPGGA,173617,4844.8683,N,12313.7709,W,2,11,1.00,2,M,-17.0,M,,*52".to_string();
-        NmeaBaseSentence::from(&base_sentence)
-    }
-
-    fn create_test_val_hex() -> NmeaBaseSentence {
-        let base_sentence = "$IIHDG,108.4,,,15.7,E*1C".to_string();
-        NmeaBaseSentence::from(&base_sentence)
-    }
-
-    #[test]
-    fn test_u8() {
-        let testval = create_test_val_1();
-        let n = testval.get::<u8>(5);
-        assert_eq!(n, Some(2));
-    }
-    #[test]
-    fn test_u16() {
-        let testval = create_test_val_1();
-        let n = testval.get::<u16>(5);
-        assert_eq!(n, Some(2));
-    }
-
-    #[test]
-    fn test_u32() {
-        let testval = create_test_val_1();
-        let n = testval.get::<u32>(0);
-        assert_eq!(n, Some(173617));
-    }
-
-    #[test]
-    fn test_string() {
-        let testval = create_test_val_1();
-        let n = testval.get::<String>(4);
-        assert_eq!(n, Some("W".to_string()));
-    }
-
-    #[test]
-    fn test_f32() {
-        let testval = create_test_val_1();
-        let n = testval.get::<f32>(1);
-        assert_eq!(n, Some(4844.8683));
-    }
-
-    #[test]
-    fn test_char() {
-        let testval = create_test_val_1();
-        let c = testval.get::<char>(2);
-        assert_eq!(c, Some('N'));
-    }
-
-     #[test]
-    fn test_past_end () {
-        let testval = create_test_val_1();
-        let n = testval.get::<f32>(20);
-        assert_eq!(n, None);
-    }
-
-    #[test]
-    fn test_non_existent() {
-        let testval = create_test_val_1();
-        let n = testval.get::<String>(12);
-        assert_eq!(n, None);
-    }
-
-    #[test]
-    fn test_hex_u8_1 () {
-        let testval = create_test_val_hex();
-        let n = testval.get_hex::<u8>(4);
-        assert_eq!(n, Some(14));
-    }
-
-    #[test]
-    fn test_n_fail () {
-        let testval = create_test_val_1();
-        let n = testval.get::<u8>(3);
-        assert_eq!(n, None);
-    }
-
-    #[test]
-    fn test_hex_f32 () {
-        let testval = create_test_val_hex();
-        let n = testval.get_hex::<f32>(4);
-        assert_eq!(n, Some(14.0));
-    }
-
-    #[test]
-    fn test_aam () {
-        let s = "$YDAAM,A,A,3.2,N,waypoint*1E".to_string();
-        let d = AamData::from(&s);
-        let arrival_status = d.arrival_status();
-        assert_eq!(arrival_status, Some('A'));
-        let perpendicular_status = d.perpendicular_status();
-        assert_eq!(perpendicular_status, Some('A'));
-        let circle_radius = d.arrival_circle_radius().unwrap();
-        assert_eq!(circle_radius.value, 3.2);
-        assert_eq!(circle_radius.unit, 'N');
-        let waypoint_id = d.waypoint_id();
-        assert_eq!(waypoint_id.unwrap(), "waypoint".to_string());
-    }
-
-    #[test]
-    fn test_aam_perpendicular_status() {
-
-    }
-
-    #[test]
-    fn test_checksum () {
-        let s = "$AAAAA,,*41".to_string();
-        let d = NmeaBaseSentence::from(&s);
-        assert_eq!(d.checksum(), 65);
-    }
-
-    #[test]
-    fn big_test () {
-        if let Ok(f) = fs::File::open("test.log") {
-            let bufreader = BufReader::new(f);
-            for line in bufreader.lines() {
-                assert!(line.is_ok());
-                let sentence = NmeaBaseSentence::from(&line.unwrap());
-                if sentence.nfields() == 0 {
-                    eprintln!("{:?}", sentence);
-                }
-                assert_ne!(sentence.nfields(), 0);
-            }
-        } else { assert!(false) }
+impl From<&NmeaBaseSentence> for NmeaSentence {
+    fn from(value: &NmeaBaseSentence) -> Self {
+        match value._message_type.as_str() {
+            "AAM" => AAM(AamData { base: (*value).clone() }),
+            "ABK" => ABK(AbkData { base: (*value).clone() }),
+            "ACA" => ACA(AcaData { base: (*value).clone() }),
+            "ACK" => ACK(AckData { base: (*value).clone() }),
+            "ACS" => ACS(AcsData { base: (*value).clone() }),
+            "ADS" => ADS(AdsData { base: (*value).clone() }),
+            "AIR" => AIR(AirData { base: (*value).clone() }),
+            "AKD" => AKD(AkdData { base: (*value).clone() }),
+            "ALA" => ALA(AlaData { base: (*value).clone() }),
+            "ALM" => ALM(AlmData { base: (*value).clone() }),
+            "ALR" => ALR(AlrData { base: (*value).clone() }),
+            "APA" => APA(ApaData { base: (*value).clone() }),
+            "APB" => APB(ApbData { base: (*value).clone() }),
+            "ASD" => ASD(AsdData { base: (*value).clone() }),
+            "BEC" => BEC(BecData { base: (*value).clone() }),
+            "BOD" => BOD(BodData { base: (*value).clone() }),
+            "BWC" => BWC(BwcData { base: (*value).clone() }),
+            "BWR" => BWR(BwrData { base: (*value).clone() }),
+            "BWW" => BWW(BwwData { base: (*value).clone() }),
+            "CEK" => CEK(CekData { base: (*value).clone() }),
+            "COP" => COP(CopData { base: (*value).clone() }),
+            "CUR" => CUR(CurData { base: (*value).clone() }),
+            "DBK" => DBK(DbkData { base: (*value).clone() }),
+            "DBS" => DBS(DbsData { base: (*value).clone() }),
+            "DBT" => DBT(DbtData { base: (*value).clone() }),
+            "DCN" => DCN(DcnData { base: (*value).clone() }),
+            "DCR" => DCR(DcrData { base: (*value).clone() }),
+            "DDC" => DDC(DdcData { base: (*value).clone() }),
+            "DOR" => DOR(DorData { base: (*value).clone() }),
+            "DPT" => DPT(DptData { base: (*value).clone() }),
+            "DSC" => DSC(DscData { base: (*value).clone() }),
+            "DSE" => DSE(DseData { base: (*value).clone() }),
+            "DSI" => DSI(DsiData { base: (*value).clone() }),
+            "DSR" => DSR(DsrData { base: (*value).clone() }),
+            "DTM" => DTM(DtmData { base: (*value).clone() }),
+            "ETL" => ETL(EtlData { base: (*value).clone() }),
+            "EVE" => EVE(EveData { base: (*value).clone() }),
+            "FIR" => FIR(FirData { base: (*value).clone() }),
+            "FSI" => FSI(FsiData { base: (*value).clone() }),
+            "GBS" => GBS(GbsData { base: (*value).clone() }),
+            "GGA" => GGA(GgaData { base: (*value).clone() }),
+            "GLC" => GLC(GlcData { base: (*value).clone() }),
+            "GLL" => GLL(GllData { base: (*value).clone() }),
+            "GMP" => GMP(GmpData { base: (*value).clone() }),
+            "GNS" => GNS(GnsData { base: (*value).clone() }),
+            "GRS" => GRS(GrsData { base: (*value).clone() }),
+            "GSA" => GSA(GsaData { base: (*value).clone() }),
+            "GST" => GST(GstData { base: (*value).clone() }),
+            "GSV" => GSV(GsvData { base: (*value).clone() }),
+            "GTD" => GTD(GtdData { base: (*value).clone() }),
+            "GXA" => GXA(GxaData { base: (*value).clone() }),
+            "HDG" => HDG(HdgData { base: (*value).clone() }),
+            "HDM" => HDM(HdmData { base: (*value).clone() }),
+            "HDT" => HDT(HdtData { base: (*value).clone() }),
+            "HFB" => HFB(HfbData { base: (*value).clone() }),
+            "HMR" => HMR(HmrData { base: (*value).clone() }),
+            "HMS" => HMS(HmsData { base: (*value).clone() }),
+            "HSC" => HSC(HscData { base: (*value).clone() }),
+            "HTC" => HTC(HtcData { base: (*value).clone() }),
+            "HTD" => HTD(HtdData { base: (*value).clone() }),
+            "ITS" => ITS(ItsData { base: (*value).clone() }),
+            "LCD" => LCD(LcdData { base: (*value).clone() }),
+            "LRF" => LRF(LrfData { base: (*value).clone() }),
+            "LR1" => LR1(Lr1Data { base: (*value).clone() }),
+            "LR2" => LR2(Lr2Data { base: (*value).clone() }),
+            "LR3" => LR3(Lr3Data { base: (*value).clone() }),
+            "MDA" => MDA(MdaData { base: (*value).clone() }),
+            "MLA" => MLA(MlaData { base: (*value).clone() }),
+            "MSK" => MSK(MskData { base: (*value).clone() }),
+            "MSS" => MSS(MssData { base: (*value).clone() }),
+            "MTW" => MTW(MtwData { base: (*value).clone() }),
+            "MWD" => MWD(MwdData { base: (*value).clone() }),
+            "MWV" => MWV(MwvData { base: (*value).clone() }),
+            "OLN" => OLN(OlnData { base: (*value).clone() }),
+            "OSD" => OSD(OsdData { base: (*value).clone() }),
+            "R00" => R00(R00Data { base: (*value).clone() }),
+            "RLM" => RLM(RlmData { base: (*value).clone() }),
+            "RMA" => RMA(RmaData { base: (*value).clone() }),
+            "RMB" => RMB(RmbData { base: (*value).clone() }),
+            "RMC" => RMC(RmcData { base: (*value).clone() }),
+            "ROT" => ROT(RotData { base: (*value).clone() }),
+            "RPM" => RPM(RpmData { base: (*value).clone() }),
+            "RSA" => RSA(RsaData { base: (*value).clone() }),
+            "RSD" => RSD(RsdData { base: (*value).clone() }),
+            "RTE" => RTE(RteData { base: (*value).clone() }),
+            "SF1" => SF1(Sf1Data { base: (*value).clone() }),
+            "SSD" => SSD(SsdData { base: (*value).clone() }),
+            "STN" => STN(StnData { base: (*value).clone() }),
+            "TDS" => TDS(TdsData { base: (*value).clone() }),
+            "TFI" => TFI(TfiData { base: (*value).clone() }),
+            "TLB" => TLB(TlbData { base: (*value).clone() }),
+            "TLL" => TLL(TllData { base: (*value).clone() }),
+            "TPC" => TPC(TpcData { base: (*value).clone() }),
+            "TPR" => TPR(TprData { base: (*value).clone() }),
+            "TPT" => TPT(TptData { base: (*value).clone() }),
+            "TRF" => TRF(TrfData { base: (*value).clone() }),
+            "TTM" => TTM(TtmData { base: (*value).clone() }),
+            "TUT" => TUT(TutData { base: (*value).clone() }),
+            "TXT" => TXT(TxtData { base: (*value).clone() }),
+            "VBW" => VBW(VbwData { base: (*value).clone() }),
+            "VDR" => VDR(VdrData { base: (*value).clone() }),
+            "VHW" => VHW(VhwData { base: (*value).clone() }),
+            "VLW" => VLW(VlwData { base: (*value).clone() }),
+            "VPW" => VPW(VpwData { base: (*value).clone() }),
+            "VSD" => VSD(VsdData { base: (*value).clone() }),
+            "VTG" => VTG(VtgData { base: (*value).clone() }),
+            "VWR" => VWR(VwrData { base: (*value).clone() }),
+            "WCV" => WCV(WcvData { base: (*value).clone() }),
+            "WDC" => WDC(WdcData { base: (*value).clone() }),
+            "WDR" => WDR(WdrData { base: (*value).clone() }),
+            "WNC" => WNC(WncData { base: (*value).clone() }),
+            "WPL" => WPL(WplData { base: (*value).clone() }),
+            "XDR" => XDR(XdrData { base: (*value).clone() }),
+            "XTE" => XTE(XteData { base: (*value).clone() }),
+            "XTR" => XTR(XtrData { base: (*value).clone() }),
+            "ZDA" => ZDA(ZdaData { base: (*value).clone() }),
+            "ZDL" => ZDL(ZdlData { base: (*value).clone() }),
+            "ZFO" => ZFO(ZfoData { base: (*value).clone() }),
+            "ZTG" => ZTG(ZtgData { base: (*value).clone() }),
+            "ABM" => ABM(AbmData { base: (*value).clone() }),
+            "BBM" => BBM(BbmData { base: (*value).clone() }),
+            "VDM" => VDM(VdmData { base: (*value).clone() }),
+            "VDO" => VDO(VdoData { base: (*value).clone() }),
+            _ => NmeaSentence::ERROR(ErrorData {
+                error: "Invalid or unknown message type".to_string(),
+                message: value._original.clone()
+            }),
+        }
     }
 }
+
+impl From<&String> for NmeaSentence {
+    fn from(value: &String) -> Self {
+        let base = NmeaBaseSentence::from(value);
+        NmeaSentence::from(&base)
+    }
+}
+
+#[cfg(test)]
+mod tests;
