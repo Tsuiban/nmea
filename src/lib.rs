@@ -123,6 +123,7 @@ pub struct NmeaBaseSentence {
     _original: String,
 }
 
+/// Used if there is an error in parsing an input string.
 #[derive(Debug)]
 pub struct ErrorData {
     pub error : String,
