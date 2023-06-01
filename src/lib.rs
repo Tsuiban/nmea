@@ -125,8 +125,8 @@ pub struct NmeaBaseSentence {
 
 #[derive(Debug)]
 pub struct ErrorData {
-    error : String,
-    message : String,
+    pub error : String,
+    pub message : String,
 }
 
 make_data!(AamData);
