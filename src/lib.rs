@@ -88,7 +88,7 @@ macro_rules! make_hex_field {
     }
 }
 
-trait NmeaBaseTrait {
+pub trait NmeaBaseTrait {
     fn get_base(&self) -> &NmeaBaseSentence;
 
     fn sender(&self) -> &String {
