@@ -360,6 +360,14 @@ impl NmeaBaseSentence {
             None
         }
     }
+
+	fn original(&self) -> Option<&String> {
+		if self._original.is_empty() {
+			None
+		} else {
+			self.get_base().original()
+		}
+	}
 }
 
 impl Clone for NmeaBaseSentence {
