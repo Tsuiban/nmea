@@ -1,6 +1,6 @@
 extern crate core;
 
-use std::io::{BufRead, BufReader};
+use std::io::{BufRead};
 use std::str::FromStr;
 use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime, Utc};
 use num_traits::Num;
