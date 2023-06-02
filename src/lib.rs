@@ -931,6 +931,7 @@ impl OlnData {
     make_number_field!(omega3_first, f32, 7);
     make_number_field!(omega3_second, f32, 8);
 
+	/// Deprecated
     pub fn omegas(&self) -> Option<Vec<OmegaData>> {
         let mut returned_vec = Vec::new();
         for i in (0..self.base.nfields()).step_by(3) {
@@ -953,6 +954,30 @@ impl OlnData {
             Some(returned_vec)
         }
     }
+
+	pub fn omega_name(&self, index :usize) -> Option<String> {
+		if (index * 3) >= self.base.nfields() {
+			None
+		} else {
+			self.base.get::<String>(index * 3)
+		}
+	}
+
+	pub fn omega_first(&self, index: usize) -> Option<f32> {
+		if (index * 3 + 1) >= self.base.nfields() {
+			None
+		} else {
+			self.base.get::<f32>(index * 3 + 1)
+		}
+	}
+
+	pub fn omega_second(&self, index: usize) -> Option<f32> {
+		if (index * 3 + 2) >= self.nfields() {
+			None
+		} else {
+			self.base.get::<f32>(index * 3 + 2)
+		}
+	}
 }
 
 impl OsdData {
