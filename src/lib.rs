@@ -110,8 +110,8 @@ pub trait NmeaBaseTrait {
 
 #[derive(Debug)]
 pub struct ValueWithUnit<T> {
-    value: T,
-    unit: char,
+    pub value: T,
+    pub unit: char,
 }
 
 #[derive(Debug)]
