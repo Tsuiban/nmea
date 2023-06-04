@@ -237,6 +237,7 @@ make_data!(VpwData);
 make_data!(VsdData);
 make_data!(VtgData);
 make_data!(VwrData);
+make_data!(VwtData);
 make_data!(WcvData);
 make_data!(WdcData);
 make_data!(WdrData);
