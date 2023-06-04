@@ -1254,7 +1254,7 @@ impl VwrData {
 }
 
 impl VwtData {
-	make_number_field!(wind_direxction, f32, 0, 1);
+	make_number_field!(wind_direction, f32, 0, 1);
 	make_number_field!(speed_knots, f32, 2, 3);
 	make_number_field!(speed_mps, f32, 4, 5);
 	make_number_field!(speed_kph, f32, 6, 7);
