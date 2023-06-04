@@ -4,7 +4,7 @@ use std::io::{BufRead};
 use std::str::FromStr;
 use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime, Utc};
 use num_traits::Num;
-use crate::NmeaSentence::{AAM, ABK, ABM, ACA, ACK, ACS, ADS, AIR, AKD, ALA, ALM, ALR, APA, APB, ASD, BBM, BEC, BOD, BWC, BWR, BWW, CEK, COP, CUR, DBK, DBS, DBT, DCN, DCR, DDC, DOR, DPT, DSC, DSE, DSI, DSR, DTM, ETL, EVE, FIR, FSI, GBS, GGA, GLC, GLL, GMP, GNS, GRS, GSA, GST, GSV, GTD, GXA, HDG, HDM, HDT, HFB, HMR, HMS, HSC, HTC, HTD, ITS, LCD, LR1, LR2, LR3, LRF, MDA, MLA, MSK, MSS, MTW, MWD, MWV, OLN, OSD, R00, RLM, RMA, RMB, RMC, ROT, RPM, RSA, RSD, RTE, SF1, SSD, STN, TDS, TFI, TLB, TLL, TPC, TPR, TPT, TRF, TTM, TUT, TXT, VBW, VDM, VDO, VDR, VHW, VLW, VPW, VSD, VTG, VWR, WCV, WDC, WDR, WNC, WPL, XDR, XTE, XTR, ZDA, ZDL, ZFO, ZTG};
+use crate::NmeaSentence::{AAM, ABK, ABM, ACA, ACK, ACS, ADS, AIR, AKD, ALA, ALM, ALR, APA, APB, ASD, BBM, BEC, BOD, BWC, BWR, BWW, CEK, COP, CUR, DBK, DBS, DBT, DCN, DCR, DDC, DOR, DPT, DSC, DSE, DSI, DSR, DTM, ETL, EVE, FIR, FSI, GBS, GGA, GLC, GLL, GMP, GNS, GRS, GSA, GST, GSV, GTD, GXA, HDG, HDM, HDT, HFB, HMR, HMS, HSC, HTC, HTD, ITS, LCD, LR1, LR2, LR3, LRF, MDA, MLA, MSK, MSS, MTW, MWD, MWV, OLN, OSD, R00, RLM, RMA, RMB, RMC, ROT, RPM, RSA, RSD, RTE, SF1, SSD, STN, TDS, TFI, TLB, TLL, TPC, TPR, TPT, TRF, TTM, TUT, TXT, VBW, VDM, VDO, VDR, VHW, VLW, VPW, VSD, VTG, VWR, VWT, WCV, WDC, WDR, WNC, WPL, XDR, XTE, XTR, ZDA, ZDL, ZFO, ZTG};
 
 macro_rules! make_data {
     ($i:ident) => {
@@ -1436,6 +1436,7 @@ pub enum NmeaSentence {
     VSD(VsdData),
     VTG(VtgData),
     VWR(VwrData),
+	VWT(VwtData),
     WCV(WcvData),
     WDC(WdcData),
     WDR(WdrData),
@@ -1565,6 +1566,7 @@ impl From<&NmeaBaseSentence> for NmeaSentence {
             "VSD" => VSD(VsdData { base: (*value).clone() }),
             "VTG" => VTG(VtgData { base: (*value).clone() }),
             "VWR" => VWR(VwrData { base: (*value).clone() }),
+			"VWT" => VWT(VwtData { base: (*value).clone() }),
             "WCV" => WCV(WcvData { base: (*value).clone() }),
             "WDC" => WDC(WdcData { base: (*value).clone() }),
             "WDR" => WDR(WdrData { base: (*value).clone() }),
