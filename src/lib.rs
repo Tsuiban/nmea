@@ -918,6 +918,13 @@ impl MtwData {
     make_number_field!(temperature, f32, 0, 1);
 }
 
+impl MwdData {
+    make_number_field!(true_wind, f32, 0, 1);
+    make_number_field!(mag_wind, f32, 2, 3);
+    make_number_field!(speed_knots, f32, 4, 5);
+    make_number_field!(speed_mps, f32, 6, 7);
+}
+
 impl MwvData {
     make_number_field!(wind_angle, f32, 0, 1);
     make_number_field!(wind_speed, f32, 2, 3);
