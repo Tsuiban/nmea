@@ -417,10 +417,8 @@ impl From<&String> for NmeaBaseSentence {
 
         // All OK - time to get down to business...
         if let Some((prolog, epilog)) = value.split_once(',') {
-            let prolog_length = prolog.len();
-            let sender_length = prolog_length - 3;
-            let sender = prolog[0..sender_length].to_string();
-            let message = prolog[sender_length..].to_string();
+            let sender = prolog[0..3].to_string();
+            let message = prolog[3..].to_string();
             let mut fields = epilog.split(',')
                 .map(|x| x.to_string())
                 .collect::<Vec<String>>();
