@@ -367,7 +367,7 @@ impl NmeaBaseSentence {
         }
     }
 
-	fn original(&self) -> Option<&String> {
+	pub fn original(&self) -> Option<&String> {
 		if self._original.is_empty() {
 			None
 		} else {
@@ -375,7 +375,7 @@ impl NmeaBaseSentence {
 		}
 	}
 
-	fn is_valid(&self) -> bool {
+	pub fn is_valid(&self) -> bool {
 		self._is_valid
 	}
 }
