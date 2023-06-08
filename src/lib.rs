@@ -121,6 +121,7 @@ pub struct NmeaBaseSentence {
     _fields: Vec<String>,
     _checksum: u8,
     _original: String,
+	_is_valid : bool,
 }
 
 /// Used if there is an error in parsing an input string.
@@ -263,10 +264,13 @@ impl NmeaBaseSentence {
             _fields: vec![],
             _checksum: 0,
             _original : value,
+			_is_valid : false,
         }
     }
 
     pub fn default() -> Self {
+		return Self::new("".to_string());
+		/*
         Self {
             _sender: "".to_string(),
             _message_type: "".to_string(),
@@ -274,6 +278,7 @@ impl NmeaBaseSentence {
             _checksum: 0,
             _original: "".to_string(),
         }
+*/
     }
 
     pub fn sender(&self) -> String {
@@ -369,6 +374,10 @@ impl NmeaBaseSentence {
 			self.get_base().original()
 		}
 	}
+
+	fn is_valid(&self) -> bool {
+		self._is_valid
+	}
 }
 
 impl Clone for NmeaBaseSentence {
@@ -379,6 +388,7 @@ impl Clone for NmeaBaseSentence {
             _fields: self._fields.clone(),
             _checksum: self._checksum,
             _original: self._original.clone(),
+			_is_valid: self._is_valid,
         }
     }
 }
@@ -424,6 +434,7 @@ impl From<&String> for NmeaBaseSentence {
                 _fields: fields,
                 _checksum: calculated_checksum,
                 _original: value.clone(),
+				_is_valid: true,
             }
         } else {
             Self::new(value)
