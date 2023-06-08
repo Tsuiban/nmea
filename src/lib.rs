@@ -1,6 +1,5 @@
 extern crate core;
 
-use std::io::{BufRead};
 use std::str::FromStr;
 use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime, Utc};
 use num_traits::Num;
@@ -269,7 +268,7 @@ impl NmeaBaseSentence {
     }
 
     pub fn default() -> Self {
-		return Self::new("".to_string());
+		return Self::new(String::new());
 		/*
         Self {
             _sender: "".to_string(),
@@ -371,7 +370,7 @@ impl NmeaBaseSentence {
 		if self._original.is_empty() {
 			None
 		} else {
-			self.get_base().original()
+			Some(&self._original)
 		}
 	}
 
@@ -778,10 +777,10 @@ impl GstData {
 }
 
 pub struct SatelliteInfo {
-    satellite_id : u16,
-    elevation: f32,
-    azimuth : f32,
-    snr : f32,
+    _satellite_id: u16,
+    _elevation: f32,
+    _azimuth : f32,
+    _snr : f32,
 }
 
 impl GsvData {
@@ -797,10 +796,10 @@ impl GsvData {
                     if let Some(azimuth) = self.base.get::<f32>(i+2) {
                         if let Some(snr) = self.base.get::<f32>(i+3) {
                             returned_vec.push(SatelliteInfo {
-                                satellite_id,
-                                elevation,
-                                azimuth,
-                                snr
+                                _satellite_id: satellite_id,
+                                _elevation : elevation,
+                                _azimuth : azimuth,
+                                _snr : snr
                             });
                         }
                     }
@@ -943,9 +942,9 @@ impl MwvData {
 }
 
 pub struct OmegaData {
-    name : String,
-    first : f32,
-    second : f32,
+    _name : String,
+    _first : f32,
+    _second : f32,
 }
 
 impl OlnData {
@@ -966,9 +965,9 @@ impl OlnData {
                 if let Some(first) = self.base.get::<f32>(i+1) {
                     if let Some(second) = self.base.get::<f32>(i+2) {
                         returned_vec.push(OmegaData {
-                            name,
-                            first,
-                            second,
+                            _name : name,
+                            _first : first,
+                            _second : second,
                         });
                     }
                 }

@@ -3,7 +3,7 @@ NMEA 183 parser by a neophyte Rust programmer
 
 There are two levels of abstraction here.  The first is the NmeaBaseSentence.  This is useful to work with if the sentence you are working for is not yet implemented in the system.  It will parse a string and break it into the various pieces that are useful to you.
 
-The second level of abstraction is ways to access pieces in a more understandable way.  Rather than hard coding to particular field numbers, you can access the semantic fields.  By this, imagine: `$XXZZZ,102.3,103.4,C*80`.  you coulld get the fields with:
+The second level of abstraction is ways to access pieces in a more understandable way.  Rather than hard coding to particular field numbers, you can access the semantic fields.  By this, imagine: `$XXZZZ,102.3,103.4,C*80`.  you could get the fields with:
 ```
 let sentence_string = "$XXZZZ,102.3,103.4,C*80";
 let base_sentence = NmeaBaseSentence::from(&sentence_string);
