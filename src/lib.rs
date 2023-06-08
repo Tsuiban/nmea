@@ -1006,6 +1006,17 @@ impl RlmData {
     make_string_field!(message_body, 3);
 }
 
+impl RmaData {
+	make_char_field!(status, 0);
+	make_number_field!(latitude, f32, 1, 2);
+	make_number_field!(longitude, f32, 3, 4);
+	make_number_field!(time_difference_a, f32, 5);
+	make_number_field!(time_difference_b, f32, 6);
+	make_number_field!(sog, f32, 7);
+	make_number_field!(cog, f32, 8);
+	make_number_field!(variation, f32, 9, 10);
+}
+
 impl RmbData {
     make_char_field!(status, 0);
     make_number_field!(xte, f32, 1);
