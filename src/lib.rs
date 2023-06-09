@@ -115,7 +115,7 @@ pub trait NmeaBaseTrait {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ValueWithUnit<T> {
     pub value: T,
     pub unit: char,
