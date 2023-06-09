@@ -1,15 +1,23 @@
 extern crate core;
 
-use std::str::FromStr;
+use crate::NmeaSentence::{
+    AAM, ABK, ABM, ACA, ACK, ACS, ADS, AIR, AKD, ALA, ALM, ALR, APA, APB, ASD, BBM, BEC, BOD, BWC,
+    BWR, BWW, CEK, COP, CUR, DBK, DBS, DBT, DCN, DCR, DDC, DOR, DPT, DSC, DSE, DSI, DSR, DTM, ETL,
+    EVE, FIR, FSI, GBS, GGA, GLC, GLL, GMP, GNS, GRS, GSA, GST, GSV, GTD, GXA, HDG, HDM, HDT, HFB,
+    HMR, HMS, HSC, HTC, HTD, ITS, LCD, LR1, LR2, LR3, LRF, MDA, MLA, MSK, MSS, MTW, MWD, MWV, OLN,
+    OSD, R00, RLM, RMA, RMB, RMC, ROT, RPM, RSA, RSD, RTE, SF1, SSD, STN, TDS, TFI, TLB, TLL, TPC,
+    TPR, TPT, TRF, TTM, TUT, TXT, VBW, VDM, VDO, VDR, VHW, VLW, VPW, VSD, VTG, VWR, VWT, WCV, WDC,
+    WDR, WNC, WPL, XDR, XTE, XTR, ZDA, ZDL, ZFO, ZTG,
+};
 use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime, Utc};
 use num_traits::Num;
-use crate::NmeaSentence::{AAM, ABK, ABM, ACA, ACK, ACS, ADS, AIR, AKD, ALA, ALM, ALR, APA, APB, ASD, BBM, BEC, BOD, BWC, BWR, BWW, CEK, COP, CUR, DBK, DBS, DBT, DCN, DCR, DDC, DOR, DPT, DSC, DSE, DSI, DSR, DTM, ETL, EVE, FIR, FSI, GBS, GGA, GLC, GLL, GMP, GNS, GRS, GSA, GST, GSV, GTD, GXA, HDG, HDM, HDT, HFB, HMR, HMS, HSC, HTC, HTD, ITS, LCD, LR1, LR2, LR3, LRF, MDA, MLA, MSK, MSS, MTW, MWD, MWV, OLN, OSD, R00, RLM, RMA, RMB, RMC, ROT, RPM, RSA, RSD, RTE, SF1, SSD, STN, TDS, TFI, TLB, TLL, TPC, TPR, TPT, TRF, TTM, TUT, TXT, VBW, VDM, VDO, VDR, VHW, VLW, VPW, VSD, VTG, VWR, VWT, WCV, WDC, WDR, WNC, WPL, XDR, XTE, XTR, ZDA, ZDL, ZFO, ZTG};
+use std::str::FromStr;
 
 macro_rules! make_data {
     ($i:ident) => {
         #[derive(Debug)]
         pub struct $i {
-            base : NmeaBaseSentence,
+            base: NmeaBaseSentence,
         }
         impl NmeaBaseTrait for $i {
             fn get_base(&self) -> &NmeaBaseSentence {
@@ -17,9 +25,9 @@ macro_rules! make_data {
             }
         }
         impl From<&String> for $i {
-            fn from(value : &String) -> Self {
+            fn from(value: &String) -> Self {
                 Self {
-                    base : NmeaBaseSentence::from(value),
+                    base: NmeaBaseSentence::from(value),
                 }
             }
         }
@@ -36,7 +44,7 @@ macro_rules! make_number_field {
         pub fn $a(&self) -> Option<ValueWithUnit<$b>> {
             self.base.get_pair::<$b>($c, $d)
         }
-    }
+    };
 }
 
 macro_rules! make_char_field {
@@ -44,7 +52,7 @@ macro_rules! make_char_field {
         pub fn $a(&self) -> Option<char> {
             self.base.get::<char>($b)
         }
-    }
+    };
 }
 
 macro_rules! make_string_field {
@@ -52,7 +60,7 @@ macro_rules! make_string_field {
         pub fn $a(&self) -> Option<String> {
             self.base.get::<String>($b)
         }
-    }
+    };
 }
 
 macro_rules! make_time_field {
@@ -60,7 +68,7 @@ macro_rules! make_time_field {
         pub fn $a(&self) -> Option<NaiveTime> {
             self.base.get_time($b)
         }
-    }
+    };
 }
 
 macro_rules! make_date_field {
@@ -68,7 +76,7 @@ macro_rules! make_date_field {
         pub fn $a(&self) -> Option<NaiveDate> {
             self.base.get_date($b)
         }
-    }
+    };
 }
 
 macro_rules! make_coordinate_field {
@@ -76,7 +84,7 @@ macro_rules! make_coordinate_field {
         pub fn $a(&self) -> Option<f32> {
             self.base.get_coordinate($b, $c)
         }
-    }
+    };
 }
 
 macro_rules! make_hex_field {
@@ -84,7 +92,7 @@ macro_rules! make_hex_field {
         pub fn $a(&self) -> Option<$b> {
             self.base.get_hex::<$b>($c)
         }
-    }
+    };
 }
 
 pub trait NmeaBaseTrait {
@@ -120,14 +128,14 @@ pub struct NmeaBaseSentence {
     _fields: Vec<String>,
     _checksum: u8,
     _original: String,
-	_is_valid : bool,
+    _is_valid: bool,
 }
 
 /// Used if there is an error in parsing an input string.
 #[derive(Debug)]
 pub struct ErrorData {
-    pub error : String,
-    pub message : String,
+    pub error: String,
+    pub message: String,
 }
 
 make_data!(AamData);
@@ -256,28 +264,28 @@ make_data!(VdmData);
 make_data!(VdoData);
 
 impl NmeaBaseSentence {
-    pub fn new(value : String) -> Self {
+    pub fn new(value: String) -> Self {
         Self {
             _sender: "".to_string(),
             _message_type: "".to_string(),
             _fields: vec![],
             _checksum: 0,
-            _original : value,
-			_is_valid : false,
+            _original: value,
+            _is_valid: false,
         }
     }
 
     pub fn default() -> Self {
-		return Self::new(String::new());
-		/*
-        Self {
-            _sender: "".to_string(),
-            _message_type: "".to_string(),
-            _fields: vec![],
-            _checksum: 0,
-            _original: "".to_string(),
-        }
-*/
+        return Self::new(String::new());
+        /*
+                Self {
+                    _sender: "".to_string(),
+                    _message_type: "".to_string(),
+                    _fields: vec![],
+                    _checksum: 0,
+                    _original: "".to_string(),
+                }
+        */
     }
 
     pub fn sender(&self) -> String {
@@ -296,27 +304,28 @@ impl NmeaBaseSentence {
         if index < self.nfields() && !self._fields[index].is_empty() {
             match self._fields[index].parse::<T>() {
                 Ok(v) => Some(v),
-                _ => None
+                _ => None,
             }
-        } else { None }
+        } else {
+            None
+        }
     }
 
     pub fn get_hex<T: Num>(&self, index: usize) -> Option<T> {
         if index < self.nfields() && !self._fields[index].is_empty() {
             match T::from_str_radix(&self._fields[index], 16) {
                 Ok(v) => Some(v),
-                _ => None
+                _ => None,
             }
-        } else { None }
+        } else {
+            None
+        }
     }
 
-    pub fn get_pair<T: FromStr>(&self, index1: usize, index2 : usize) -> Option<ValueWithUnit<T>> {
+    pub fn get_pair<T: FromStr>(&self, index1: usize, index2: usize) -> Option<ValueWithUnit<T>> {
         if let Some(v) = self.get::<T>(index1) {
             if let Some(c) = self.get::<char>(index2) {
-                return Some(ValueWithUnit {
-                    value: v,
-                    unit: c,
-                });
+                return Some(ValueWithUnit { value: v, unit: c });
             }
         };
         None
@@ -324,13 +333,13 @@ impl NmeaBaseSentence {
 
     pub fn get_time(&self, index: usize) -> Option<NaiveTime> {
         if index >= self._fields.len() || self._fields[index].is_empty() {
-            return None
+            return None;
         };
         let field = &self._fields[index];
         if let Ok(hours) = field[0..2].parse::<u32>() {
             if let Ok(minutes) = field[2..4].parse::<u32>() {
                 if let Ok(seconds) = field[5..].parse::<f32>() {
-                    let millis = ((seconds-seconds.floor()) * 1000.0).floor() as u32;
+                    let millis = ((seconds - seconds.floor()) * 1000.0).floor() as u32;
                     let seconds = seconds.floor() as u32;
                     return NaiveTime::from_hms_milli_opt(hours, minutes, seconds, millis);
                 }
@@ -346,14 +355,14 @@ impl NmeaBaseSentence {
                     Some(-coordinate)
                 } else {
                     Some(coordinate)
-                }
+                };
             }
         };
         None
     }
 
     pub fn get_date(&self, index: usize) -> Option<NaiveDate> {
-        if let Some(t) = self.get::<String>(index)  {
+        if let Some(t) = self.get::<String>(index) {
             let days_s = &t[0..2];
             let month_s = &t[2..4];
             let year_s = &t[4..];
@@ -366,17 +375,17 @@ impl NmeaBaseSentence {
         }
     }
 
-	pub fn original(&self) -> Option<&String> {
-		if self._original.is_empty() {
-			None
-		} else {
-			Some(&self._original)
-		}
-	}
+    pub fn original(&self) -> Option<&String> {
+        if self._original.is_empty() {
+            None
+        } else {
+            Some(&self._original)
+        }
+    }
 
-	pub fn is_valid(&self) -> bool {
-		self._is_valid
-	}
+    pub fn is_valid(&self) -> bool {
+        self._is_valid
+    }
 }
 
 impl Clone for NmeaBaseSentence {
@@ -387,7 +396,7 @@ impl Clone for NmeaBaseSentence {
             _fields: self._fields.clone(),
             _checksum: self._checksum,
             _original: self._original.clone(),
-			_is_valid: self._is_valid,
+            _is_valid: self._is_valid,
         }
     }
 }
@@ -399,15 +408,15 @@ impl From<&String> for NmeaBaseSentence {
         //    or the third-to-last character is not an asterisk
         let value = value.clone();
         let message_length = value.len();
-        if message_length < 9 || value[message_length-3..message_length-2] != *"*" {
+        if message_length < 9 || value[message_length - 3..message_length - 2] != *"*" {
             return NmeaBaseSentence::new(value);
         }
-        let checksum_string = &value[message_length-2..];
-        let calculated_checksum : u8;
+        let checksum_string = &value[message_length - 2..];
+        let calculated_checksum: u8;
         if let Ok(checksum) = u8::from_str_radix(&checksum_string, 16) {
-            calculated_checksum=
-                value[1..message_length-3]
-                    .bytes().fold(0, |acc, x| acc ^ x);
+            calculated_checksum = value[1..message_length - 3]
+                .bytes()
+                .fold(0, |acc, x| acc ^ x);
             if checksum != calculated_checksum {
                 return NmeaBaseSentence::new(value);
             }
@@ -419,7 +428,8 @@ impl From<&String> for NmeaBaseSentence {
         if let Some((prolog, epilog)) = value.split_once(',') {
             let sender = prolog[0..3].to_string();
             let message = prolog[3..].to_string();
-            let mut fields = epilog.split(',')
+            let mut fields = epilog
+                .split(',')
                 .map(|x| x.to_string())
                 .collect::<Vec<String>>();
             let last = fields.pop().unwrap();
@@ -431,7 +441,7 @@ impl From<&String> for NmeaBaseSentence {
                 _fields: fields,
                 _checksum: calculated_checksum,
                 _original: value.clone(),
-				_is_valid: true,
+                _is_valid: true,
             }
         } else {
             Self::new(value)
@@ -777,8 +787,8 @@ impl GstData {
 pub struct SatelliteInfo {
     _satellite_id: u16,
     _elevation: f32,
-    _azimuth : f32,
-    _snr : f32,
+    _azimuth: f32,
+    _snr: f32,
 }
 
 impl GsvData {
@@ -790,14 +800,14 @@ impl GsvData {
         let mut returned_vec = Vec::new();
         for i in (3..self.base.nfields()).step_by(4) {
             if let Some(satellite_id) = self.base.get::<u16>(i) {
-                if let Some(elevation) = self.base.get::<f32>(i+1) {
-                    if let Some(azimuth) = self.base.get::<f32>(i+2) {
-                        if let Some(snr) = self.base.get::<f32>(i+3) {
+                if let Some(elevation) = self.base.get::<f32>(i + 1) {
+                    if let Some(azimuth) = self.base.get::<f32>(i + 2) {
+                        if let Some(snr) = self.base.get::<f32>(i + 3) {
                             returned_vec.push(SatelliteInfo {
                                 _satellite_id: satellite_id,
-                                _elevation : elevation,
-                                _azimuth : azimuth,
-                                _snr : snr
+                                _elevation: elevation,
+                                _azimuth: azimuth,
+                                _snr: snr,
                             });
                         }
                     }
@@ -882,13 +892,16 @@ impl LcdData {
         let mut differences = Vec::new();
         for i in (3..self.nfields()).step_by(2) {
             if let Some(micros) = self.base.get::<f32>(i) {
-                if let Some(status) = self.base.get::<f32>(i+1) {
+                if let Some(status) = self.base.get::<f32>(i + 1) {
                     differences.push((micros, status));
                 }
             }
-        };
-        if differences.is_empty() { None }
-        else { Some(differences) }
+        }
+        if differences.is_empty() {
+            None
+        } else {
+            Some(differences)
+        }
     }
 }
 
@@ -940,9 +953,9 @@ impl MwvData {
 }
 
 pub struct OmegaData {
-    _name : String,
-    _first : f32,
-    _second : f32,
+    _name: String,
+    _first: f32,
+    _second: f32,
 }
 
 impl OlnData {
@@ -960,17 +973,17 @@ impl OlnData {
         let mut returned_vec = Vec::new();
         for i in (0..self.base.nfields()).step_by(3) {
             if let Some(name) = self.base.get::<String>(i) {
-                if let Some(first) = self.base.get::<f32>(i+1) {
-                    if let Some(second) = self.base.get::<f32>(i+2) {
+                if let Some(first) = self.base.get::<f32>(i + 1) {
+                    if let Some(second) = self.base.get::<f32>(i + 2) {
                         returned_vec.push(OmegaData {
-                            _name : name,
-                            _first : first,
-                            _second : second,
+                            _name: name,
+                            _first: first,
+                            _second: second,
                         });
                     }
                 }
             }
-        };
+        }
 
         if returned_vec.is_empty() {
             None
@@ -998,7 +1011,7 @@ impl R00Data {
             if let Some(w) = self.base.get::<String>(i) {
                 returned_vec.push(w);
             }
-        };
+        }
         if returned_vec.is_empty() {
             None
         } else {
@@ -1015,14 +1028,14 @@ impl RlmData {
 }
 
 impl RmaData {
-	make_char_field!(status, 0);
-	make_number_field!(latitude, f32, 1, 2);
-	make_number_field!(longitude, f32, 3, 4);
-	make_number_field!(time_difference_a, f32, 5);
-	make_number_field!(time_difference_b, f32, 6);
-	make_number_field!(sog, f32, 7);
-	make_number_field!(cog, f32, 8);
-	make_number_field!(variation, f32, 9, 10);
+    make_char_field!(status, 0);
+    make_number_field!(latitude, f32, 1, 2);
+    make_number_field!(longitude, f32, 3, 4);
+    make_number_field!(time_difference_a, f32, 5);
+    make_number_field!(time_difference_b, f32, 6);
+    make_number_field!(sog, f32, 7);
+    make_number_field!(cog, f32, 8);
+    make_number_field!(variation, f32, 9, 10);
 }
 
 impl RmbData {
@@ -1069,7 +1082,7 @@ impl RpmData {
 impl RsaData {
     make_number_field!(angle, f32, 0); // Synonym for starboard rudder.
     make_number_field!(starboard_angle, f32, 0);
-    make_char_field!(status, 1);        // Synonym for starboard rudder
+    make_char_field!(status, 1); // Synonym for starboard rudder
     make_char_field!(starboard_status, 1);
     make_number_field!(port_angle, f32, 2);
     make_char_field!(port_status, 2);
@@ -1102,7 +1115,7 @@ impl RteData {
             if let Some(w) = self.base.get::<String>(i) {
                 returned_vec.push(w)
             }
-        };
+        }
         if returned_vec.is_empty() {
             None
         } else {
@@ -1114,15 +1127,15 @@ impl RteData {
 impl Sf1Data {
     make_number_field!(total_sentence_count, u8, 0);
     make_number_field!(sentence_number, u8, 1);
-    pub fn frequencies (&self) -> Option<Vec<(f32, char)>> {
+    pub fn frequencies(&self) -> Option<Vec<(f32, char)>> {
         let mut returned_vec = Vec::new();
         for i in (2..self.nfields()).step_by(2) {
             if let Some(f) = self.base.get::<f32>(i) {
-                if let Some(mode) = self.base.get::<char>(i+1) {
+                if let Some(mode) = self.base.get::<char>(i + 1) {
                     returned_vec.push((f, mode));
                 }
             }
-        };
+        }
         if returned_vec.is_empty() {
             None
         } else {
@@ -1150,14 +1163,17 @@ impl TlbData {
         let mut returned_vec = Vec::new();
         for i in (0..self.nfields()).step_by(2) {
             if let Some(n) = self.base.get::<u8>(i) {
-                if let Some(l) = self.base.get::<String>(i+1) {
+                if let Some(l) = self.base.get::<String>(i + 1) {
                     returned_vec.push((n, l));
                 }
             }
-        };
+        }
 
-        if returned_vec.is_empty() { None }
-        else {Some(returned_vec) }
+        if returned_vec.is_empty() {
+            None
+        } else {
+            Some(returned_vec)
+        }
     }
 }
 
@@ -1226,9 +1242,9 @@ impl VbwData {
     make_number_field!(longitudinal_ground_speed, f32, 3);
     make_number_field!(transverse_ground_speed, f32, 4);
     make_char_field!(status_ground_speed, 5);
-    make_number_field!(stern_traverse_water_speed_knots,f32, 6);
+    make_number_field!(stern_traverse_water_speed_knots, f32, 6);
     make_char_field!(status_stern_traverse_water_speed, 7);
-    make_number_field!(stern_traverse_ground_speed_knots,f32, 8);
+    make_number_field!(stern_traverse_ground_speed_knots, f32, 8);
     make_char_field!(status_stern_traverse_ground_speed, 9);
 }
 
@@ -1273,10 +1289,10 @@ impl VwrData {
 }
 
 impl VwtData {
-	make_number_field!(wind_direction, f32, 0, 1);
-	make_number_field!(speed_knots, f32, 2, 3);
-	make_number_field!(speed_mps, f32, 4, 5);
-	make_number_field!(speed_kph, f32, 6, 7);
+    make_number_field!(wind_direction, f32, 0, 1);
+    make_number_field!(speed_knots, f32, 2, 3);
+    make_number_field!(speed_mps, f32, 4, 5);
+    make_number_field!(speed_kph, f32, 6, 7);
 }
 
 impl WcvData {
@@ -1299,9 +1315,9 @@ impl WplData {
 }
 
 pub struct TransducerData {
-    pub transducer_type : char,
-    pub data : ValueWithUnit<f32>,
-    pub name : String,
+    pub transducer_type: char,
+    pub data: ValueWithUnit<f32>,
+    pub name: String,
 }
 
 impl XdrData {
@@ -1309,22 +1325,25 @@ impl XdrData {
         let mut returned_vec = Vec::new();
         for i in (0..self.nfields()).step_by(4) {
             if let Some(transducer_type) = self.base.get::<char>(i) {
-                if let Some(value) = self.base.get::<f32>(i+1) {
-                    if let Some(unit) = self.base.get::<char>(i+2) {
-                        if let Some(name) = self.base.get::<String>(i+3) {
-                            returned_vec.push(TransducerData{
+                if let Some(value) = self.base.get::<f32>(i + 1) {
+                    if let Some(unit) = self.base.get::<char>(i + 2) {
+                        if let Some(name) = self.base.get::<String>(i + 3) {
+                            returned_vec.push(TransducerData {
                                 transducer_type,
-                                data: ValueWithUnit {value, unit},
+                                data: ValueWithUnit { value, unit },
                                 name,
                             })
                         }
                     }
                 }
             }
-        };
+        }
 
-        if returned_vec.is_empty() { None }
-        else { Some(returned_vec) }
+        if returned_vec.is_empty() {
+            None
+        } else {
+            Some(returned_vec)
+        }
     }
 }
 
@@ -1470,7 +1489,7 @@ pub enum NmeaSentence {
     VSD(VsdData),
     VTG(VtgData),
     VWR(VwrData),
-	VWT(VwtData),
+    VWT(VwtData),
     WCV(WcvData),
     WDC(WdcData),
     WDR(WdrData),
@@ -1493,133 +1512,381 @@ pub enum NmeaSentence {
 impl From<&NmeaBaseSentence> for NmeaSentence {
     fn from(value: &NmeaBaseSentence) -> Self {
         match value._message_type.as_str() {
-            "AAM" => AAM(AamData { base: (*value).clone() }),
-            "ABK" => ABK(AbkData { base: (*value).clone() }),
-            "ACA" => ACA(AcaData { base: (*value).clone() }),
-            "ACK" => ACK(AckData { base: (*value).clone() }),
-            "ACS" => ACS(AcsData { base: (*value).clone() }),
-            "ADS" => ADS(AdsData { base: (*value).clone() }),
-            "AIR" => AIR(AirData { base: (*value).clone() }),
-            "AKD" => AKD(AkdData { base: (*value).clone() }),
-            "ALA" => ALA(AlaData { base: (*value).clone() }),
-            "ALM" => ALM(AlmData { base: (*value).clone() }),
-            "ALR" => ALR(AlrData { base: (*value).clone() }),
-            "APA" => APA(ApaData { base: (*value).clone() }),
-            "APB" => APB(ApbData { base: (*value).clone() }),
-            "ASD" => ASD(AsdData { base: (*value).clone() }),
-            "BEC" => BEC(BecData { base: (*value).clone() }),
-            "BOD" => BOD(BodData { base: (*value).clone() }),
-            "BWC" => BWC(BwcData { base: (*value).clone() }),
-            "BWR" => BWR(BwrData { base: (*value).clone() }),
-            "BWW" => BWW(BwwData { base: (*value).clone() }),
-            "CEK" => CEK(CekData { base: (*value).clone() }),
-            "COP" => COP(CopData { base: (*value).clone() }),
-            "CUR" => CUR(CurData { base: (*value).clone() }),
-            "DBK" => DBK(DbkData { base: (*value).clone() }),
-            "DBS" => DBS(DbsData { base: (*value).clone() }),
-            "DBT" => DBT(DbtData { base: (*value).clone() }),
-            "DCN" => DCN(DcnData { base: (*value).clone() }),
-            "DCR" => DCR(DcrData { base: (*value).clone() }),
-            "DDC" => DDC(DdcData { base: (*value).clone() }),
-            "DOR" => DOR(DorData { base: (*value).clone() }),
-            "DPT" => DPT(DptData { base: (*value).clone() }),
-            "DSC" => DSC(DscData { base: (*value).clone() }),
-            "DSE" => DSE(DseData { base: (*value).clone() }),
-            "DSI" => DSI(DsiData { base: (*value).clone() }),
-            "DSR" => DSR(DsrData { base: (*value).clone() }),
-            "DTM" => DTM(DtmData { base: (*value).clone() }),
-            "ETL" => ETL(EtlData { base: (*value).clone() }),
-            "EVE" => EVE(EveData { base: (*value).clone() }),
-            "FIR" => FIR(FirData { base: (*value).clone() }),
-            "FSI" => FSI(FsiData { base: (*value).clone() }),
-            "GBS" => GBS(GbsData { base: (*value).clone() }),
-            "GGA" => GGA(GgaData { base: (*value).clone() }),
-            "GLC" => GLC(GlcData { base: (*value).clone() }),
-            "GLL" => GLL(GllData { base: (*value).clone() }),
-            "GMP" => GMP(GmpData { base: (*value).clone() }),
-            "GNS" => GNS(GnsData { base: (*value).clone() }),
-            "GRS" => GRS(GrsData { base: (*value).clone() }),
-            "GSA" => GSA(GsaData { base: (*value).clone() }),
-            "GST" => GST(GstData { base: (*value).clone() }),
-            "GSV" => GSV(GsvData { base: (*value).clone() }),
-            "GTD" => GTD(GtdData { base: (*value).clone() }),
-            "GXA" => GXA(GxaData { base: (*value).clone() }),
-            "HDG" => HDG(HdgData { base: (*value).clone() }),
-            "HDM" => HDM(HdmData { base: (*value).clone() }),
-            "HDT" => HDT(HdtData { base: (*value).clone() }),
-            "HFB" => HFB(HfbData { base: (*value).clone() }),
-            "HMR" => HMR(HmrData { base: (*value).clone() }),
-            "HMS" => HMS(HmsData { base: (*value).clone() }),
-            "HSC" => HSC(HscData { base: (*value).clone() }),
-            "HTC" => HTC(HtcData { base: (*value).clone() }),
-            "HTD" => HTD(HtdData { base: (*value).clone() }),
-            "ITS" => ITS(ItsData { base: (*value).clone() }),
-            "LCD" => LCD(LcdData { base: (*value).clone() }),
-            "LRF" => LRF(LrfData { base: (*value).clone() }),
-            "LR1" => LR1(Lr1Data { base: (*value).clone() }),
-            "LR2" => LR2(Lr2Data { base: (*value).clone() }),
-            "LR3" => LR3(Lr3Data { base: (*value).clone() }),
-            "MDA" => MDA(MdaData { base: (*value).clone() }),
-            "MLA" => MLA(MlaData { base: (*value).clone() }),
-            "MSK" => MSK(MskData { base: (*value).clone() }),
-            "MSS" => MSS(MssData { base: (*value).clone() }),
-            "MTW" => MTW(MtwData { base: (*value).clone() }),
-            "MWD" => MWD(MwdData { base: (*value).clone() }),
-            "MWV" => MWV(MwvData { base: (*value).clone() }),
-            "OLN" => OLN(OlnData { base: (*value).clone() }),
-            "OSD" => OSD(OsdData { base: (*value).clone() }),
-            "R00" => R00(R00Data { base: (*value).clone() }),
-            "RLM" => RLM(RlmData { base: (*value).clone() }),
-            "RMA" => RMA(RmaData { base: (*value).clone() }),
-            "RMB" => RMB(RmbData { base: (*value).clone() }),
-            "RMC" => RMC(RmcData { base: (*value).clone() }),
-            "ROT" => ROT(RotData { base: (*value).clone() }),
-            "RPM" => RPM(RpmData { base: (*value).clone() }),
-            "RSA" => RSA(RsaData { base: (*value).clone() }),
-            "RSD" => RSD(RsdData { base: (*value).clone() }),
-            "RTE" => RTE(RteData { base: (*value).clone() }),
-            "SF1" => SF1(Sf1Data { base: (*value).clone() }),
-            "SSD" => SSD(SsdData { base: (*value).clone() }),
-            "STN" => STN(StnData { base: (*value).clone() }),
-            "TDS" => TDS(TdsData { base: (*value).clone() }),
-            "TFI" => TFI(TfiData { base: (*value).clone() }),
-            "TLB" => TLB(TlbData { base: (*value).clone() }),
-            "TLL" => TLL(TllData { base: (*value).clone() }),
-            "TPC" => TPC(TpcData { base: (*value).clone() }),
-            "TPR" => TPR(TprData { base: (*value).clone() }),
-            "TPT" => TPT(TptData { base: (*value).clone() }),
-            "TRF" => TRF(TrfData { base: (*value).clone() }),
-            "TTM" => TTM(TtmData { base: (*value).clone() }),
-            "TUT" => TUT(TutData { base: (*value).clone() }),
-            "TXT" => TXT(TxtData { base: (*value).clone() }),
-            "VBW" => VBW(VbwData { base: (*value).clone() }),
-            "VDR" => VDR(VdrData { base: (*value).clone() }),
-            "VHW" => VHW(VhwData { base: (*value).clone() }),
-            "VLW" => VLW(VlwData { base: (*value).clone() }),
-            "VPW" => VPW(VpwData { base: (*value).clone() }),
-            "VSD" => VSD(VsdData { base: (*value).clone() }),
-            "VTG" => VTG(VtgData { base: (*value).clone() }),
-            "VWR" => VWR(VwrData { base: (*value).clone() }),
-			"VWT" => VWT(VwtData { base: (*value).clone() }),
-            "WCV" => WCV(WcvData { base: (*value).clone() }),
-            "WDC" => WDC(WdcData { base: (*value).clone() }),
-            "WDR" => WDR(WdrData { base: (*value).clone() }),
-            "WNC" => WNC(WncData { base: (*value).clone() }),
-            "WPL" => WPL(WplData { base: (*value).clone() }),
-            "XDR" => XDR(XdrData { base: (*value).clone() }),
-            "XTE" => XTE(XteData { base: (*value).clone() }),
-            "XTR" => XTR(XtrData { base: (*value).clone() }),
-            "ZDA" => ZDA(ZdaData { base: (*value).clone() }),
-            "ZDL" => ZDL(ZdlData { base: (*value).clone() }),
-            "ZFO" => ZFO(ZfoData { base: (*value).clone() }),
-            "ZTG" => ZTG(ZtgData { base: (*value).clone() }),
-            "ABM" => ABM(AbmData { base: (*value).clone() }),
-            "BBM" => BBM(BbmData { base: (*value).clone() }),
-            "VDM" => VDM(VdmData { base: (*value).clone() }),
-            "VDO" => VDO(VdoData { base: (*value).clone() }),
+            "AAM" => AAM(AamData {
+                base: (*value).clone(),
+            }),
+            "ABK" => ABK(AbkData {
+                base: (*value).clone(),
+            }),
+            "ACA" => ACA(AcaData {
+                base: (*value).clone(),
+            }),
+            "ACK" => ACK(AckData {
+                base: (*value).clone(),
+            }),
+            "ACS" => ACS(AcsData {
+                base: (*value).clone(),
+            }),
+            "ADS" => ADS(AdsData {
+                base: (*value).clone(),
+            }),
+            "AIR" => AIR(AirData {
+                base: (*value).clone(),
+            }),
+            "AKD" => AKD(AkdData {
+                base: (*value).clone(),
+            }),
+            "ALA" => ALA(AlaData {
+                base: (*value).clone(),
+            }),
+            "ALM" => ALM(AlmData {
+                base: (*value).clone(),
+            }),
+            "ALR" => ALR(AlrData {
+                base: (*value).clone(),
+            }),
+            "APA" => APA(ApaData {
+                base: (*value).clone(),
+            }),
+            "APB" => APB(ApbData {
+                base: (*value).clone(),
+            }),
+            "ASD" => ASD(AsdData {
+                base: (*value).clone(),
+            }),
+            "BEC" => BEC(BecData {
+                base: (*value).clone(),
+            }),
+            "BOD" => BOD(BodData {
+                base: (*value).clone(),
+            }),
+            "BWC" => BWC(BwcData {
+                base: (*value).clone(),
+            }),
+            "BWR" => BWR(BwrData {
+                base: (*value).clone(),
+            }),
+            "BWW" => BWW(BwwData {
+                base: (*value).clone(),
+            }),
+            "CEK" => CEK(CekData {
+                base: (*value).clone(),
+            }),
+            "COP" => COP(CopData {
+                base: (*value).clone(),
+            }),
+            "CUR" => CUR(CurData {
+                base: (*value).clone(),
+            }),
+            "DBK" => DBK(DbkData {
+                base: (*value).clone(),
+            }),
+            "DBS" => DBS(DbsData {
+                base: (*value).clone(),
+            }),
+            "DBT" => DBT(DbtData {
+                base: (*value).clone(),
+            }),
+            "DCN" => DCN(DcnData {
+                base: (*value).clone(),
+            }),
+            "DCR" => DCR(DcrData {
+                base: (*value).clone(),
+            }),
+            "DDC" => DDC(DdcData {
+                base: (*value).clone(),
+            }),
+            "DOR" => DOR(DorData {
+                base: (*value).clone(),
+            }),
+            "DPT" => DPT(DptData {
+                base: (*value).clone(),
+            }),
+            "DSC" => DSC(DscData {
+                base: (*value).clone(),
+            }),
+            "DSE" => DSE(DseData {
+                base: (*value).clone(),
+            }),
+            "DSI" => DSI(DsiData {
+                base: (*value).clone(),
+            }),
+            "DSR" => DSR(DsrData {
+                base: (*value).clone(),
+            }),
+            "DTM" => DTM(DtmData {
+                base: (*value).clone(),
+            }),
+            "ETL" => ETL(EtlData {
+                base: (*value).clone(),
+            }),
+            "EVE" => EVE(EveData {
+                base: (*value).clone(),
+            }),
+            "FIR" => FIR(FirData {
+                base: (*value).clone(),
+            }),
+            "FSI" => FSI(FsiData {
+                base: (*value).clone(),
+            }),
+            "GBS" => GBS(GbsData {
+                base: (*value).clone(),
+            }),
+            "GGA" => GGA(GgaData {
+                base: (*value).clone(),
+            }),
+            "GLC" => GLC(GlcData {
+                base: (*value).clone(),
+            }),
+            "GLL" => GLL(GllData {
+                base: (*value).clone(),
+            }),
+            "GMP" => GMP(GmpData {
+                base: (*value).clone(),
+            }),
+            "GNS" => GNS(GnsData {
+                base: (*value).clone(),
+            }),
+            "GRS" => GRS(GrsData {
+                base: (*value).clone(),
+            }),
+            "GSA" => GSA(GsaData {
+                base: (*value).clone(),
+            }),
+            "GST" => GST(GstData {
+                base: (*value).clone(),
+            }),
+            "GSV" => GSV(GsvData {
+                base: (*value).clone(),
+            }),
+            "GTD" => GTD(GtdData {
+                base: (*value).clone(),
+            }),
+            "GXA" => GXA(GxaData {
+                base: (*value).clone(),
+            }),
+            "HDG" => HDG(HdgData {
+                base: (*value).clone(),
+            }),
+            "HDM" => HDM(HdmData {
+                base: (*value).clone(),
+            }),
+            "HDT" => HDT(HdtData {
+                base: (*value).clone(),
+            }),
+            "HFB" => HFB(HfbData {
+                base: (*value).clone(),
+            }),
+            "HMR" => HMR(HmrData {
+                base: (*value).clone(),
+            }),
+            "HMS" => HMS(HmsData {
+                base: (*value).clone(),
+            }),
+            "HSC" => HSC(HscData {
+                base: (*value).clone(),
+            }),
+            "HTC" => HTC(HtcData {
+                base: (*value).clone(),
+            }),
+            "HTD" => HTD(HtdData {
+                base: (*value).clone(),
+            }),
+            "ITS" => ITS(ItsData {
+                base: (*value).clone(),
+            }),
+            "LCD" => LCD(LcdData {
+                base: (*value).clone(),
+            }),
+            "LRF" => LRF(LrfData {
+                base: (*value).clone(),
+            }),
+            "LR1" => LR1(Lr1Data {
+                base: (*value).clone(),
+            }),
+            "LR2" => LR2(Lr2Data {
+                base: (*value).clone(),
+            }),
+            "LR3" => LR3(Lr3Data {
+                base: (*value).clone(),
+            }),
+            "MDA" => MDA(MdaData {
+                base: (*value).clone(),
+            }),
+            "MLA" => MLA(MlaData {
+                base: (*value).clone(),
+            }),
+            "MSK" => MSK(MskData {
+                base: (*value).clone(),
+            }),
+            "MSS" => MSS(MssData {
+                base: (*value).clone(),
+            }),
+            "MTW" => MTW(MtwData {
+                base: (*value).clone(),
+            }),
+            "MWD" => MWD(MwdData {
+                base: (*value).clone(),
+            }),
+            "MWV" => MWV(MwvData {
+                base: (*value).clone(),
+            }),
+            "OLN" => OLN(OlnData {
+                base: (*value).clone(),
+            }),
+            "OSD" => OSD(OsdData {
+                base: (*value).clone(),
+            }),
+            "R00" => R00(R00Data {
+                base: (*value).clone(),
+            }),
+            "RLM" => RLM(RlmData {
+                base: (*value).clone(),
+            }),
+            "RMA" => RMA(RmaData {
+                base: (*value).clone(),
+            }),
+            "RMB" => RMB(RmbData {
+                base: (*value).clone(),
+            }),
+            "RMC" => RMC(RmcData {
+                base: (*value).clone(),
+            }),
+            "ROT" => ROT(RotData {
+                base: (*value).clone(),
+            }),
+            "RPM" => RPM(RpmData {
+                base: (*value).clone(),
+            }),
+            "RSA" => RSA(RsaData {
+                base: (*value).clone(),
+            }),
+            "RSD" => RSD(RsdData {
+                base: (*value).clone(),
+            }),
+            "RTE" => RTE(RteData {
+                base: (*value).clone(),
+            }),
+            "SF1" => SF1(Sf1Data {
+                base: (*value).clone(),
+            }),
+            "SSD" => SSD(SsdData {
+                base: (*value).clone(),
+            }),
+            "STN" => STN(StnData {
+                base: (*value).clone(),
+            }),
+            "TDS" => TDS(TdsData {
+                base: (*value).clone(),
+            }),
+            "TFI" => TFI(TfiData {
+                base: (*value).clone(),
+            }),
+            "TLB" => TLB(TlbData {
+                base: (*value).clone(),
+            }),
+            "TLL" => TLL(TllData {
+                base: (*value).clone(),
+            }),
+            "TPC" => TPC(TpcData {
+                base: (*value).clone(),
+            }),
+            "TPR" => TPR(TprData {
+                base: (*value).clone(),
+            }),
+            "TPT" => TPT(TptData {
+                base: (*value).clone(),
+            }),
+            "TRF" => TRF(TrfData {
+                base: (*value).clone(),
+            }),
+            "TTM" => TTM(TtmData {
+                base: (*value).clone(),
+            }),
+            "TUT" => TUT(TutData {
+                base: (*value).clone(),
+            }),
+            "TXT" => TXT(TxtData {
+                base: (*value).clone(),
+            }),
+            "VBW" => VBW(VbwData {
+                base: (*value).clone(),
+            }),
+            "VDR" => VDR(VdrData {
+                base: (*value).clone(),
+            }),
+            "VHW" => VHW(VhwData {
+                base: (*value).clone(),
+            }),
+            "VLW" => VLW(VlwData {
+                base: (*value).clone(),
+            }),
+            "VPW" => VPW(VpwData {
+                base: (*value).clone(),
+            }),
+            "VSD" => VSD(VsdData {
+                base: (*value).clone(),
+            }),
+            "VTG" => VTG(VtgData {
+                base: (*value).clone(),
+            }),
+            "VWR" => VWR(VwrData {
+                base: (*value).clone(),
+            }),
+            "VWT" => VWT(VwtData {
+                base: (*value).clone(),
+            }),
+            "WCV" => WCV(WcvData {
+                base: (*value).clone(),
+            }),
+            "WDC" => WDC(WdcData {
+                base: (*value).clone(),
+            }),
+            "WDR" => WDR(WdrData {
+                base: (*value).clone(),
+            }),
+            "WNC" => WNC(WncData {
+                base: (*value).clone(),
+            }),
+            "WPL" => WPL(WplData {
+                base: (*value).clone(),
+            }),
+            "XDR" => XDR(XdrData {
+                base: (*value).clone(),
+            }),
+            "XTE" => XTE(XteData {
+                base: (*value).clone(),
+            }),
+            "XTR" => XTR(XtrData {
+                base: (*value).clone(),
+            }),
+            "ZDA" => ZDA(ZdaData {
+                base: (*value).clone(),
+            }),
+            "ZDL" => ZDL(ZdlData {
+                base: (*value).clone(),
+            }),
+            "ZFO" => ZFO(ZfoData {
+                base: (*value).clone(),
+            }),
+            "ZTG" => ZTG(ZtgData {
+                base: (*value).clone(),
+            }),
+            "ABM" => ABM(AbmData {
+                base: (*value).clone(),
+            }),
+            "BBM" => BBM(BbmData {
+                base: (*value).clone(),
+            }),
+            "VDM" => VDM(VdmData {
+                base: (*value).clone(),
+            }),
+            "VDO" => VDO(VdoData {
+                base: (*value).clone(),
+            }),
             _ => NmeaSentence::ERROR(ErrorData {
                 error: "Invalid or unknown message type".to_string(),
-                message: value._original.clone()
+                message: value._original.clone(),
             }),
         }
     }
