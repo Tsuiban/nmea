@@ -1,9 +1,10 @@
-use std::{assert_eq, fs};
-use std::io::{BufRead, BufReader};
 use super::*;
+use std::io::{BufRead, BufReader};
+use std::{assert_eq, fs};
 
 fn create_test_val_1() -> NmeaBaseSentence {
-    let base_sentence = "$GPGGA,173617,4844.8683,N,12313.7709,W,2,11,1.00,2,M,-17.0,M,,*52".to_string();
+    let base_sentence =
+        "$GPGGA,173617,4844.8683,N,12313.7709,W,2,11,1.00,2,M,-17.0,M,,*52".to_string();
     NmeaBaseSentence::from(&base_sentence)
 }
 
@@ -55,10 +56,10 @@ fn test_char() {
 }
 
 #[test]
-fn test_past_end () {
-   let testval = create_test_val_1();
-   let n = testval.get::<f32>(20);
-   assert_eq!(n, None);
+fn test_past_end() {
+    let testval = create_test_val_1();
+    let n = testval.get::<f32>(20);
+    assert_eq!(n, None);
 }
 
 #[test]
@@ -69,28 +70,28 @@ fn test_non_existent() {
 }
 
 #[test]
-fn test_hex_u8_1 () {
+fn test_hex_u8_1() {
     let testval = create_test_val_hex();
     let n = testval.get_hex::<u8>(4);
     assert_eq!(n, Some(14));
 }
 
 #[test]
-fn test_n_fail () {
+fn test_n_fail() {
     let testval = create_test_val_1();
     let n = testval.get::<u8>(3);
     assert_eq!(n, None);
 }
 
 #[test]
-fn test_hex_f32 () {
+fn test_hex_f32() {
     let testval = create_test_val_hex();
     let n = testval.get_hex::<f32>(4);
     assert_eq!(n, Some(14.0));
 }
 
 #[test]
-fn test_aam () {
+fn test_aam() {
     let s = "$YDAAM,A,A,3.2,N,waypoint*1E".to_string();
     let d = AamData::from(&s);
     let arrival_status = d.arrival_status();
@@ -105,19 +106,17 @@ fn test_aam () {
 }
 
 #[test]
-fn test_aam_perpendicular_status() {
-
-}
+fn test_aam_perpendicular_status() {}
 
 #[test]
-fn test_checksum () {
+fn test_checksum() {
     let s = "$AAAAA,,*41".to_string();
     let d = NmeaBaseSentence::from(&s);
     assert_eq!(d.checksum(), 65);
 }
 
 #[test]
-fn big_test () {
+fn big_test() {
     if let Ok(f) = fs::File::open("test.log") {
         let bufreader = BufReader::new(f);
         for line in bufreader.lines() {
@@ -128,5 +127,7 @@ fn big_test () {
             }
             assert_ne!(sentence.nfields(), 0);
         }
-    } else { assert!(false) }
+    } else {
+        assert!(false)
+    }
 }
